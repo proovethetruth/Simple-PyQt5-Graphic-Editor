@@ -1,4 +1,7 @@
 
+from Canvas import *
+from InputDialog import *
+
 import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -6,23 +9,26 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.showMaximized()
+        
         font = QtGui.QFont()
         font.setFamily("Gill Sans MT")
         MainWindow.setFont(font)
+       
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(".\\Resourses/my_icon.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
+
         MainWindow.setAutoFillBackground(False)
+
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.centralwidget.setStyleSheet("background-color: #262626;")
-        self.centralwidget.setGeometry(0, 41, 2500, 2500)
-        self.centralwidget.adjustSize()
-        
+
         self.ToolMenu = QtWidgets.QFrame(self.centralwidget)
         self.ToolMenu.adjustSize()
         self.ToolMenu.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -40,11 +46,12 @@ class Ui_MainWindow(object):
         self.toolButton.setIconSize(QtCore.QSize(40, 40))
         self.toolButton.setObjectName("toolButton")
 
-        self.mainImage = QtWidgets.QLabel(self.centralwidget)
-        self.mainImage.setGeometry(0, 41, self.centralwidget.width(), self.centralwidget.height())
+        self.mainImage = Canvas(self.centralwidget)
+        self.mainImage.setGeometry(0, 41, 800, 800)
         self.mainImage.setObjectName("mainImage")
 
         MainWindow.setCentralWidget(self.centralwidget)
+        
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 24))
         self.menubar.setObjectName("menubar")
@@ -110,9 +117,13 @@ class Ui_MainWindow(object):
         self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
 
     def createImage(self):
-        pixmap = QPixmap(10, 10).scaledToHeight(self.mainImage.height())
-        pixmap.fill(Qt.white)
-        self.mainImage.setPixmap(pixmap)
+        dialog = InputDialog()
+        if dialog.exec():
+            pixmap = QPixmap(int(dialog.getInputs()[0]), int(dialog.getInputs()[1]))
+            pixmap.fill(Qt.white)
+
+            self.mainImage.setPixmap(pixmap)
+            self.mainImage.adjustSize()
 
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
@@ -121,44 +132,13 @@ class Ui_MainWindow(object):
             self.mainImage.setPixmap(pixmap)
             self.mainImage.adjustSize()
 
-            self.mainImage.painter = QPainter()
-            self.mainImage.painter.drawPixmap(self.mainImage.rect(), self.mainImage.pixmap())
-            pen = QPen(Qt.red, 3)
-            self.mainImage.painter.setPen(pen)
-            self.mainImage.painter.drawLine(10, 10, self.mainImage.rect().width() -10 , 10)
-
     def saveImage(self):
         fileName, _ = QFileDialog.getSaveFileName(self.mainImage, 'Save File', '', '*.jpg')
         if fileName:
             self.mainImage.pixmap().save(fileName)
-    
-    def mouseMoveEvent(self, event):
-        if self.last:
-            self.painter.drawLine(self.last, event.pos())
 
-            self.last = event.pos()
-            self.mainImage.setPixmap(self.mainImage.pixmap())
-            self.mainImage.update()
 
-    def mousePressEvent(self, event):
-        self.last = event.pos()
 
-    def mouseReleaseEvent(self, event):
-        self.last = None
-
-    def updateSize(self, width, height):
-        pm = QPixmap(width, height)
-        pm.fill(Qt.white)
-        old = self.mainImage.pixmap()
-        self.mainImage.setPixmap(pm)
-        self.pen = QPen(Qt.black)
-        self.painter = QPainter(pm)
-        self.painter.drawPixmap(0,0,old)
-        self.mainImage.setPixmap(pm)
-
-    def resizeEvent(self, event):
-        if event.oldSize().width() > 0:
-            self.updateSize(event.size().width(), event.size().height())
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
