@@ -5,29 +5,26 @@ from InputDialog import *
 import sys
 
 from PyQt5.QtGui import QFont, QIcon, QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFrame, QToolButton, QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFrame, QToolButton, QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout
 from PyQt5.QtCore import Qt, QSize, QMetaObject, QCoreApplication
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.showMaximized()
-        
         font = QFont()
         font.setFamily("Gill Sans MT")
         MainWindow.setFont(font)
-       
         icon = QIcon()
         icon.addPixmap(QPixmap(".\\Resourses/my_icon.jpg"), QIcon.Normal, QIcon.Off)
         MainWindow.setWindowIcon(icon)
-
         MainWindow.setAutoFillBackground(False)
 
-        self.centralwidget = QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.centralwidget.setStyleSheet("background-color: #262626;")
 
-        self.ToolMenu = QFrame(self.centralwidget)
+        self.mainLayout = QVBoxLayout()
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.setSpacing(0)
+
+        self.ToolMenu = QFrame()
         self.ToolMenu.adjustSize()
         self.ToolMenu.setFrameShape(QFrame.StyledPanel)
         self.ToolMenu.setFrameShadow(QFrame.Raised)
@@ -40,16 +37,17 @@ class Ui_MainWindow(object):
         self.pencilTool.setIcon(icon1)
         self.pencilTool.setIconSize(QSize(60, 60))
         self.pencilTool.setObjectName("pencilTool")
+        self.mainLayout.addWidget(self.ToolMenu)
 
-        self.mainImage = Canvas(self.centralwidget)
-        self.mainImage.setGeometry(0, 61, 800, 800)
+        self.mainImage = Canvas()
         self.mainImage.setObjectName("mainImage")
-
-        palette = QHBoxLayout(self.centralwidget)
-        self.add_palette_buttons(palette)
-
-        MainWindow.setCentralWidget(self.centralwidget)
+        self.mainLayout.addWidget(self.mainImage)
         
+        self.palette = QHBoxLayout()
+        self.add_palette_buttons(self.palette)
+        self.palette.addStretch()
+        self.mainLayout.addLayout(self.palette)
+
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setGeometry(0, 0, 800, 24)
         self.menubar.setObjectName("menubar")
@@ -98,6 +96,12 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSave)
         self.menubar.addAction(self.menuFile.menuAction())
 
+        self.centralwidget = QWidget(MainWindow)
+        self.centralwidget.setLayout(self.mainLayout)
+        self.centralwidget.setStyleSheet("background-color: #262626;")
+
+        MainWindow.setCentralWidget(self.centralwidget)
+        MainWindow.showMaximized()
         self.retranslateUi(MainWindow)
         QMetaObject.connectSlotsByName(MainWindow)
 
@@ -126,7 +130,7 @@ class Ui_MainWindow(object):
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
         if imagePath:
-            pixmap = QPixmap(imagePath).scaled(self.size(), self.centralwidget.width(), Qt.KeepAspectRatio)
+            pixmap = QPixmap(imagePath).scaled(self.centralwidget.width() - 300, self.centralwidget.height() - 300, Qt.KeepAspectRatio)
             self.mainImage.setPixmap(pixmap)
             self.mainImage.adjustSize()
 

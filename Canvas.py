@@ -5,8 +5,8 @@ from PyQt5.QtCore import QSize
 
 
 class Canvas(QLabel):
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self):
+        super().__init__()
         self.last_x, self.last_y = None, None
         self.pen_color = QColor('#000000')
 
