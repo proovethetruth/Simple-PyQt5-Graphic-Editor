@@ -5,7 +5,7 @@ from InputDialog import *
 import sys
 
 from PyQt5.QtGui import QFont, QIcon, QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFrame, QToolButton, QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFrame, QToolButton, QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout, QSizePolicy
 from PyQt5.QtCore import Qt, QSize, QMetaObject, QCoreApplication
 
 class Ui_MainWindow(object):
@@ -32,17 +32,30 @@ class Ui_MainWindow(object):
 
         self.pencilTool = QToolButton(self.ToolMenu)
         self.pencilTool.setGeometry(0, 0, 60, 60)
-        icon1 = QIcon()
-        icon1.addPixmap(QPixmap(".\\Resourses/pencil_icon.png"), QIcon.Normal, QIcon.Off)
-        self.pencilTool.setIcon(icon1)
+        pencilIcon = QIcon()
+        pencilIcon.addPixmap(QPixmap(".\\Resourses/pencil_icon.png"), QIcon.Normal, QIcon.Off)
+        self.pencilTool.setIcon(pencilIcon)
         self.pencilTool.setIconSize(QSize(60, 60))
         self.pencilTool.setObjectName("pencilTool")
+
+        self.sprayTool = QToolButton(self.ToolMenu)
+        self.sprayTool.setGeometry(60, 0, 60, 60)
+        sprayIcon = QIcon()
+        sprayIcon.addPixmap(QPixmap(".\\Resourses/spray_icon.png"), QIcon.Normal, QIcon.Off)
+        self.sprayTool.setIcon(sprayIcon)
+        self.sprayTool.setIconSize(QSize(60, 60))
+        self.sprayTool.setObjectName("sprayTool")
+
         self.mainLayout.addWidget(self.ToolMenu)
 
         self.mainImage = Canvas()
         self.mainImage.setObjectName("mainImage")
         self.mainLayout.addWidget(self.mainImage)
-        
+
+        self.pencilTool.clicked.connect(lambda: self.mainImage.pickPen())
+        self.sprayTool.clicked.connect(lambda: self.mainImage.pickSpray())
+
+
         self.palette = QHBoxLayout()
         self.add_palette_buttons(self.palette)
         self.palette.addStretch()
@@ -130,7 +143,8 @@ class Ui_MainWindow(object):
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
         if imagePath:
-            pixmap = QPixmap(imagePath).scaled(self.centralwidget.width() - 300, self.centralwidget.height() - 300, Qt.KeepAspectRatio)
+            #pixmap = QPixmap(imagePath).scaled(self.mainLayout.width(), self.centralwidget.height(), Qt.KeepAspectRatio)
+            pixmap = QPixmap(imagePath)
             self.mainImage.setPixmap(pixmap)
             self.mainImage.adjustSize()
 

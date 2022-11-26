@@ -3,37 +3,62 @@ from PyQt5.QtWidgets import QLabel, QPushButton
 from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtCore import QSize
 
+import random
+
+SPRAY_PARTICLES = 100
+SPRAY_DIAMETER = 10
 
 class Canvas(QLabel):
     def __init__(self):
         super().__init__()
         self.last_x, self.last_y = None, None
         self.pen_color = QColor('#000000')
+        self.currentTool = "pen"
 
     def set_pen_color(self, c):
         self.pen_color = QColor(c)
 
     def mouseMoveEvent(self, e):
-        if self.last_x is None:
+        if self.currentTool == "pen":
+            if self.last_x is None:
+                self.last_x = e.x()
+                self.last_y = e.y()
+                return
+
+            painter = QPainter(self.pixmap())
+            p = painter.pen()
+            p.setWidth(4)
+            p.setColor(self.pen_color)
+            painter.setPen(p)
+            painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
+            painter.end()
+            self.update()
+
             self.last_x = e.x()
             self.last_y = e.y()
-            return
 
-        painter = QPainter(self.pixmap())
-        p = painter.pen()
-        p.setWidth(4)
-        p.setColor(self.pen_color)
-        painter.setPen(p)
-        painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
-        painter.end()
-        self.update()
+        elif self.currentTool == "spray":
+            painter = QPainter(self.pixmap())
+            p = painter.pen()
+            p.setWidth(1)
+            p.setColor(self.pen_color)
+            painter.setPen(p)
+            for n in range(SPRAY_PARTICLES):
+                xo = random.gauss(0, SPRAY_DIAMETER)
+                yo = random.gauss(0, SPRAY_DIAMETER)
+                painter.drawPoint(int(e.x() + xo), int(e.y() + yo))
 
-        self.last_x = e.x()
-        self.last_y = e.y()
+            self.update()
 
     def mouseReleaseEvent(self, e):
         self.last_x = None
         self.last_y = None
+
+    def pickPen(self):
+        self.currentTool = "pen"
+
+    def pickSpray(self):
+        self.currentTool = "spray"
 
 COLORS = [
 # 17 undertones https://lospec.com/palette-list/17undertones
