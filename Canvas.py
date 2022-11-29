@@ -1,9 +1,9 @@
 
-from PyQt5.QtWidgets import QLabel, QPushButton
+from PyQt5.QtWidgets import QLabel, QPushButton, QSizePolicy
 from PyQt5.QtGui import QColor, QPainter
 from PyQt5.QtCore import QSize
 
-import random
+import random, time
 
 SPRAY_PARTICLES = 100
 SPRAY_DIAMETER = 10

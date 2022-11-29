@@ -5,7 +5,8 @@ from InputDialog import *
 import sys
 
 from PyQt5.QtGui import QFont, QIcon, QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFrame, QToolButton, QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout, QSizePolicy
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QFrame, QToolButton, 
+QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout, QSizePolicy)
 from PyQt5.QtCore import Qt, QSize, QMetaObject, QCoreApplication
 
 class Ui_MainWindow(object):
@@ -19,47 +20,37 @@ class Ui_MainWindow(object):
         MainWindow.setWindowIcon(icon)
         MainWindow.setAutoFillBackground(False)
 
+        self.mainImage = Canvas()
+        self.mainImage.setObjectName("mainImage")
 
-        self.mainLayout = QVBoxLayout()
-        self.mainLayout.setContentsMargins(0, 0, 0, 0)
-        self.mainLayout.setSpacing(0)
+        self.toolMenu = QFrame()
+        self.toolMenu.adjustSize()
+        self.toolMenu.setFrameShape(QFrame.StyledPanel)
+        self.toolMenu.setFrameShadow(QFrame.Raised)
+        self.toolMenu.setObjectName("toolMenu")
 
-        self.ToolMenu = QFrame()
-        self.ToolMenu.adjustSize()
-        self.ToolMenu.setFrameShape(QFrame.StyledPanel)
-        self.ToolMenu.setFrameShadow(QFrame.Raised)
-        self.ToolMenu.setObjectName("ToolMenu")
-
-        self.pencilTool = QToolButton(self.ToolMenu)
+        self.pencilTool = QToolButton(self.toolMenu)
         self.pencilTool.setGeometry(0, 0, 60, 60)
         pencilIcon = QIcon()
         pencilIcon.addPixmap(QPixmap(".\\Resourses/pencil_icon.png"), QIcon.Normal, QIcon.Off)
         self.pencilTool.setIcon(pencilIcon)
         self.pencilTool.setIconSize(QSize(60, 60))
         self.pencilTool.setObjectName("pencilTool")
+        self.pencilTool.clicked.connect(lambda: self.mainImage.pickPen())
 
-        self.sprayTool = QToolButton(self.ToolMenu)
+        self.sprayTool = QToolButton(self.toolMenu)
         self.sprayTool.setGeometry(60, 0, 60, 60)
         sprayIcon = QIcon()
         sprayIcon.addPixmap(QPixmap(".\\Resourses/spray_icon.png"), QIcon.Normal, QIcon.Off)
         self.sprayTool.setIcon(sprayIcon)
         self.sprayTool.setIconSize(QSize(60, 60))
         self.sprayTool.setObjectName("sprayTool")
-
-        self.mainLayout.addWidget(self.ToolMenu)
-
-        self.mainImage = Canvas()
-        self.mainImage.setObjectName("mainImage")
-        self.mainLayout.addWidget(self.mainImage)
-
-        self.pencilTool.clicked.connect(lambda: self.mainImage.pickPen())
         self.sprayTool.clicked.connect(lambda: self.mainImage.pickSpray())
 
-
         self.palette = QHBoxLayout()
+        self.palette.addStretch()
         self.add_palette_buttons(self.palette)
         self.palette.addStretch()
-        self.mainLayout.addLayout(self.palette)
 
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setGeometry(0, 0, 800, 24)
@@ -109,11 +100,30 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSave)
         self.menubar.addAction(self.menuFile.menuAction())
 
+
+
+        self.mainLayout = QVBoxLayout()
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.setSpacing(20)
+
+        self.toolMenu.setMinimumSize(0, 60)
+        self.toolMenu.setMaximumSize(5000, 60)
+        self.mainLayout.addWidget(self.toolMenu)
+
+        #self.mainImage.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.mainLayout.addWidget(self.mainImage)
+
+        self.palette.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.addLayout(self.palette, 200)
+
+        #self.mainLayout.setAlignment(Qt.AlignCenter)
+
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setLayout(self.mainLayout)
         self.centralwidget.setStyleSheet("background-color: #262626;")
 
         MainWindow.setCentralWidget(self.centralwidget)
+        MainWindow.resize(800,600)
         MainWindow.showMaximized()
         self.retranslateUi(MainWindow)
         QMetaObject.connectSlotsByName(MainWindow)
@@ -123,6 +133,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Graphic Editor [Lab03]"))
         self.pencilTool.setStatusTip(_translate("MainWindow", "\"Pencil\""))
         self.pencilTool.setText(_translate("MainWindow", "..."))
+        self.sprayTool.setStatusTip(_translate("MainWindow", "\"Spray\""))
+        self.sprayTool.setText(_translate("MainWindow", "..."))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionCreate.setText(_translate("MainWindow", "Create"))
         self.actionCreate.setShortcut(_translate("MainWindow", "Ctrl+N"))
@@ -143,10 +155,9 @@ class Ui_MainWindow(object):
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
         if imagePath:
-            #pixmap = QPixmap(imagePath).scaled(self.mainLayout.width(), self.centralwidget.height(), Qt.KeepAspectRatio)
-            pixmap = QPixmap(imagePath)
+            pixmap = QPixmap(imagePath).scaled(self.mainImage.width(), self.mainImage.height(), Qt.KeepAspectRatio)
             self.mainImage.setPixmap(pixmap)
-            self.mainImage.adjustSize()
+            #self.mainImage.adjustSize()
 
     def saveImage(self):
         fileName, _ = QFileDialog.getSaveFileName(self.mainImage, 'Save File', '', '*.jpg')
