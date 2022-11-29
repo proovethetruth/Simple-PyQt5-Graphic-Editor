@@ -53,7 +53,6 @@ class Ui_MainWindow(object):
         self.palette.addStretch()
 
         self.menubar = QMenuBar(MainWindow)
-        self.menubar.setGeometry(0, 0, 800, 24)
         self.menubar.setObjectName("menubar")
 
         self.menuFile = QMenu(self.menubar)
@@ -100,23 +99,19 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSave)
         self.menubar.addAction(self.menuFile.menuAction())
 
-
-
         self.mainLayout = QVBoxLayout()
-        self.mainLayout.setContentsMargins(0, 0, 0, 0)
-        self.mainLayout.setSpacing(20)
+        self.mainLayout.setContentsMargins(0, 0, 0, 50)
+        self.mainLayout.setSpacing(10)
 
         self.toolMenu.setMinimumSize(0, 60)
         self.toolMenu.setMaximumSize(5000, 60)
         self.mainLayout.addWidget(self.toolMenu)
-
-        #self.mainImage.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        
         self.mainLayout.addWidget(self.mainImage)
 
-        self.palette.setContentsMargins(0, 0, 0, 0)
-        self.mainLayout.addLayout(self.palette, 200)
-
-        #self.mainLayout.setAlignment(Qt.AlignCenter)
+        #self.palette.setContentsMargins(10, 0, 0, 10)
+        self.palette.setSpacing(0)
+        self.mainLayout.addLayout(self.palette)
 
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setLayout(self.mainLayout)
@@ -146,9 +141,8 @@ class Ui_MainWindow(object):
     def createImage(self):
         dialog = InputDialog()
         if dialog.exec():
-            pixmap = QPixmap(int(dialog.getInputs()[0]), int(dialog.getInputs()[1]))
+            pixmap = QPixmap(int(dialog.getInputs()[0]), int(dialog.getInputs()[1])).scaled(self.mainImage.width(), self.mainImage.height(), Qt.KeepAspectRatio)
             pixmap.fill(Qt.white)
-
             self.mainImage.setPixmap(pixmap)
             self.mainImage.adjustSize()
 
@@ -157,7 +151,7 @@ class Ui_MainWindow(object):
         if imagePath:
             pixmap = QPixmap(imagePath).scaled(self.mainImage.width(), self.mainImage.height(), Qt.KeepAspectRatio)
             self.mainImage.setPixmap(pixmap)
-            #self.mainImage.adjustSize()
+            self.mainImage.adjustSize()
 
     def saveImage(self):
         fileName, _ = QFileDialog.getSaveFileName(self.mainImage, 'Save File', '', '*.jpg')
