@@ -35,23 +35,18 @@ class Canvas(QLabel):
                 return
 
             self.p.setWidth(self.penSize)
-            # painter.translate(-self.pmRect.topLeft())
             self.painter.drawLine(self.last_x, self.last_y, e.x(), e.y())
-            # self.painter.end()
             self.update()
 
             self.last_x = e.x()
             self.last_y = e.y()
 
         elif self.currentTool == "spray":
-            self.p.setWidth(self.penSize // 2)
-            # p = painter.pen()
-            # painter.translate(-self.pmRect.topLeft())
+            self.p.setWidth(self.penSize // 4)
             for n in range(SPRAY_PARTICLES):
-                xo = random.gauss(0, SPRAY_DIAMETER * self.penSize * 0.5)
-                yo = random.gauss(0, SPRAY_DIAMETER * self.penSize * 0.5)
+                xo = random.gauss(0, SPRAY_DIAMETER * self.penSize * 0.25)
+                yo = random.gauss(0, SPRAY_DIAMETER * self.penSize * 0.25)
                 self.painter.drawPoint(int(e.x() + xo), int(e.y() + yo))
-
             self.update()
 
     def mouseReleaseEvent(self, e):
@@ -68,6 +63,9 @@ class Canvas(QLabel):
         self.currentTool = "spray"
 
     def setPixmap(self, a0: QPixmap):
+        if self.pixmap():
+            self.painter.end()
+
         super().setPixmap(a0)
         rect = self.contentsRect()
         self.pmRect = self.pixmap().rect()
@@ -85,10 +83,7 @@ class Canvas(QLabel):
         self.painter = QPainter(self.pixmap())
         self.p = self.painter.pen()
         self.p.setWidth(4)
-        self.p.setColor(self.pen_color)
-        self.painter.setPen(self.p)
         self.painter.translate(-self.pmRect.topLeft())
-        self.update()
 
 COLORS = [
 # 17 undertones https://lospec.com/palette-list/17undertones

@@ -4,8 +4,8 @@ from InputDialog import *
 import sys
 
 from PyQt5.QtGui import QFont, QIcon, QPixmap
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QFrame, QToolButton, 
-QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout, QSpinBox)
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QToolButton, 
+QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout, QSpinBox, QGraphicsDropShadowEffect)
 from PyQt5.QtCore import Qt, QSize, QMetaObject, QCoreApplication
 
 class Ui_MainWindow(object):
@@ -22,15 +22,20 @@ class Ui_MainWindow(object):
         self.mainImage = Canvas()
         self.mainImage.setObjectName("mainImage")
 
-        self.toolMenu = QFrame()
-        self.toolMenu.setStyleSheet("background-color: white")
-        self.toolMenu.adjustSize()
-        self.toolMenu.setFrameShape(QFrame.StyledPanel)
-        self.toolMenu.setFrameShadow(QFrame.Raised)
-        self.toolMenu.setObjectName("toolMenu")
+        self.menuWidget = QWidget()
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setOffset(0, 5)
+        shadow.setBlurRadius(20)
+        self.menuWidget.setGraphicsEffect(shadow)
+        self.menuWidget.setStyleSheet("background-color: #555555")
+        self.menuWidget.setMaximumSize(5000, 100)
+        self.menuWidget.setContentsMargins(10, 0, 0, 0)
 
-        self.pencilTool = QToolButton(self.toolMenu)
-        self.pencilTool.setGeometry(0, 0, 60, 60)
+        self.toolMenu = QHBoxLayout(self.menuWidget)
+        self.toolMenu.setContentsMargins(0, 0, 0, 0)
+
+        self.pencilTool = QToolButton()
+        self.pencilTool.setStyleSheet("background-color: #888888")
         pencilIcon = QIcon()
         pencilIcon.addPixmap(QPixmap(".\\Resourses/pencil_icon.png"), QIcon.Normal, QIcon.Off)
         self.pencilTool.setIcon(pencilIcon)
@@ -38,8 +43,8 @@ class Ui_MainWindow(object):
         self.pencilTool.setObjectName("pencilTool")
         self.pencilTool.clicked.connect(lambda: self.mainImage.pickPen())
 
-        self.sprayTool = QToolButton(self.toolMenu)
-        self.sprayTool.setGeometry(60, 0, 60, 60)
+        self.sprayTool = QToolButton()
+        self.sprayTool.setStyleSheet("background-color: #888888")
         sprayIcon = QIcon()
         sprayIcon.addPixmap(QPixmap(".\\Resourses/spray_icon.png"), QIcon.Normal, QIcon.Off)
         self.sprayTool.setIcon(sprayIcon)
@@ -47,20 +52,23 @@ class Ui_MainWindow(object):
         self.sprayTool.setObjectName("sprayTool")
         self.sprayTool.clicked.connect(lambda: self.mainImage.pickSpray())
 
-        self.sizeLabel = QLabel("   Pen size: ", self.toolMenu)
-        self.sizeLabel.setGeometry(120, 0, 100, 60)
+        self.sizeLabel = QLabel("   Pen size: ")
         self.sizeLabel.setFont(QFont("Gill Sans MT", 14))
-        self.sizeLabel.setStyleSheet("background-color: white")
+        self.sizeLabel.setStyleSheet("color: white")
 
-        self.sliderLabel = QLabel(self.toolMenu)
-        self.sliderLabel.setGeometry(220, 20, 120, 60)
-        self.sliderLabel.setStyleSheet("background-color: white")
-
-        self.penSizeButton = QSpinBox(self.sliderLabel)
+        self.penSizeButton = QSpinBox()
+        self.penSizeButton.setStyleSheet("padding: 5; color: white; background-color: #333333; font-size: 15px;")
         self.penSizeButton.setValue(4)
         self.penSizeButton.setMinimum(1)
         self.penSizeButton.setMaximum(50)
         self.penSizeButton.valueChanged.connect(lambda: self.mainImage.changePenSize(self.penSizeButton.value()))
+
+        self.toolMenu.addWidget(self.pencilTool)
+        self.toolMenu.addWidget(self.sprayTool)
+        self.toolMenu.addWidget(self.sizeLabel)
+        self.toolMenu.addWidget(self.penSizeButton)
+
+        self.toolMenu.addStretch()
 
         self.palette = QHBoxLayout()
         self.palette.addStretch()
@@ -115,16 +123,13 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.mainLayout = QVBoxLayout()
-        self.mainLayout.setContentsMargins(0, 0, 0, 50)
+        self.mainLayout.setContentsMargins(0, 0, 0, 25)
         self.mainLayout.setSpacing(10)
 
-        self.toolMenu.setMinimumSize(0, 60)
-        self.toolMenu.setMaximumSize(5000, 60)
-        self.mainLayout.addWidget(self.toolMenu)
+        self.mainLayout.addWidget(self.menuWidget)
         
         self.mainLayout.addWidget(self.mainImage)
 
-        #self.palette.setContentsMargins(10, 0, 0, 10)
         self.palette.setSpacing(0)
         self.mainLayout.addLayout(self.palette)
 
@@ -143,8 +148,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Graphic Editor [Lab03]"))
         self.pencilTool.setStatusTip(_translate("MainWindow", "\"Pencil\""))
         self.pencilTool.setText(_translate("MainWindow", "..."))
-        self.sprayTool.setStatusTip(_translate("MainWindow", "\"Spray\""))
-        self.sprayTool.setText(_translate("MainWindow", "..."))
+        # self.sprayTool.setStatusTip(_translate("MainWindow", "\"Spray\""))
+        # self.sprayTool.setText(_translate("MainWindow", "..."))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionCreate.setText(_translate("MainWindow", "Create"))
         self.actionCreate.setShortcut(_translate("MainWindow", "Ctrl+N"))
