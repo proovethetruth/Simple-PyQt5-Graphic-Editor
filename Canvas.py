@@ -70,6 +70,7 @@ class Canvas(QLabel):
     def mouseMoveEvent(self, e):
         if not self.pixmap():
             return
+
         self.painter.setPen(self.p)
 
         if self.currentTool == "pen":
@@ -104,9 +105,6 @@ class Canvas(QLabel):
         self.currentTool = "spray"
 
     def setPixmap(self, a0: QPixmap, backup: bool):
-        if backup == True:
-            self.backupImage = a0
-
         # if self.pixmap():
         #     self.painter.end()
 
@@ -125,8 +123,10 @@ class Canvas(QLabel):
             elif align &  Qt.AlignBottom:
                 self.pmRect.moveBottom(rect.bottom())
 
-        self.painter = QPainter(self.pixmap())
-        self.p = self.painter.pen()
+        if backup == True:
+            self.backupImage = a0
+            self.painter = QPainter(self.pixmap())
+            self.p = self.painter.pen()
         self.painter.translate(-self.pmRect.topLeft())
 
 COLORS = [
