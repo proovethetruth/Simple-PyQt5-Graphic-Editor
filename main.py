@@ -107,11 +107,19 @@ class Ui_MainWindow(object):
 
         self.toolMenu.addStretch()
 
-        self.palette = QHBoxLayout()
+        self.footerWidget = QWidget()
+        shadow2 = QGraphicsDropShadowEffect()
+        shadow2.setOffset(0, -5)
+        shadow2.setBlurRadius(20)
+        self.footerWidget.setGraphicsEffect(shadow2)
+        self.footerWidget.setStyleSheet("background-color: #555555")
+        self.footerWidget.setMaximumSize(5000, 90)
+
+        self.palette = QHBoxLayout(self.footerWidget)
         self.palette.addStretch()
         self.add_palette_buttons(self.palette)
         self.palette.addStretch()
-        self.palette.setContentsMargins(0, 10, 0, 20)
+        self.palette.setContentsMargins(0, 10, 0, 10)
 
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName("menubar")
@@ -170,7 +178,7 @@ class Ui_MainWindow(object):
         self.mainLayout.addWidget(self.mainImage)
 
         self.palette.setSpacing(0)
-        self.mainLayout.addLayout(self.palette)
+        self.mainLayout.addWidget(self.footerWidget)
 
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setLayout(self.mainLayout)
@@ -184,7 +192,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Graphic Editor [Lab03]"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Graphics Editor [Lab03]"))
         self.pencilTool.setStatusTip(_translate("MainWindow", "\"Pencil\""))
         self.pencilTool.setText(_translate("MainWindow", "..."))
         self.sprayTool.setStatusTip(_translate("MainWindow", "\"Spray\""))

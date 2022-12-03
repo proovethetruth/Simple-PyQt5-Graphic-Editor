@@ -107,8 +107,8 @@ class Canvas(QLabel):
         if backup == True:
             self.backupImage = a0
 
-        if self.pixmap():
-            self.painter.end()
+        # if self.pixmap():
+        #     self.painter.end()
 
         super().setPixmap(a0)
 
