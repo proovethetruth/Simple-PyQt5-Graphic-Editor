@@ -5,7 +5,7 @@ import sys
 
 from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QToolButton, 
-QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout, QSpinBox, QGraphicsDropShadowEffect)
+QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout, QSpinBox, QGraphicsDropShadowEffect, QColorDialog)
 from PyQt5.QtCore import Qt, QSize, QMetaObject, QCoreApplication
 
 class Ui_MainWindow(object):
@@ -28,8 +28,8 @@ class Ui_MainWindow(object):
         shadow.setBlurRadius(20)
         self.menuWidget.setGraphicsEffect(shadow)
         self.menuWidget.setStyleSheet("background-color: #555555")
-        self.menuWidget.setMaximumSize(5000, 100)
-        self.menuWidget.setContentsMargins(10, 0, 0, 0)
+        self.menuWidget.setMaximumSize(5000, 90)
+        self.menuWidget.setContentsMargins(10, 0, 10, 0)
 
         self.toolMenu = QHBoxLayout(self.menuWidget)
         self.toolMenu.setContentsMargins(0, 0, 0, 0)
@@ -63,10 +63,47 @@ class Ui_MainWindow(object):
         self.penSizeButton.setMaximum(50)
         self.penSizeButton.valueChanged.connect(lambda: self.mainImage.changePenSize(self.penSizeButton.value()))
 
+        self.keepRatioButton = QPushButton()
+        self.customBox = True
+        self.chainedIcon = QIcon(".\\Resourses/chain_icon_pressed.png")
+        self.unchainedIcon = QIcon(".\\Resourses/chain_icon.png")
+        self.keepRatioButton.setIcon(self.chainedIcon)
+        self.keepRatioButton.setIconSize(QSize(30, 30))
+        self.keepRatioButton.setStyleSheet("border: none;")
+        self.keepRatioButton.clicked.connect(lambda: self.switchKeepRatioPixmap())
+
+        self.widthLabel = QLabel("   Width: ")
+        self.widthLabel.setFont(QFont("Gill Sans MT", 14))
+        self.widthLabel.setStyleSheet("color: white")
+
+        self.widthButton = QSpinBox()
+        self.widthButton.setStyleSheet("padding: 5; color: white; background-color: #333333; font-size: 15px;")
+        self.widthButton.setRange(1, 9999)
+        self.widthButton.setSingleStep(20)
+        self.widthButton.clear()
+        self.widthButton.valueChanged.connect(lambda: self.mainImage.changeWidth(self.widthButton.value()))
+
+        self.heighLabel = QLabel("Height: ")
+        self.heighLabel.setFont(QFont("Gill Sans MT", 14))
+        self.heighLabel.setStyleSheet("color: white")
+
+        self.heightButton = QSpinBox()
+        self.heightButton.setStyleSheet("padding: 5; color: white; background-color: #333333; font-size: 15px;")
+        self.heightButton.setRange(1, 9999)
+        self.heightButton.setSingleStep(20)
+        self.heightButton.clear()
+        self.heightButton.valueChanged.connect(lambda: self.mainImage.changeHeight(self.heightButton.value()))
+
         self.toolMenu.addWidget(self.pencilTool)
         self.toolMenu.addWidget(self.sprayTool)
         self.toolMenu.addWidget(self.sizeLabel)
         self.toolMenu.addWidget(self.penSizeButton)
+        self.toolMenu.addStretch(1)
+        self.toolMenu.addWidget(self.widthLabel)
+        self.toolMenu.addWidget(self.widthButton)
+        self.toolMenu.addWidget(self.keepRatioButton)
+        self.toolMenu.addWidget(self.heighLabel)
+        self.toolMenu.addWidget(self.heightButton)
 
         self.toolMenu.addStretch()
 
@@ -74,6 +111,7 @@ class Ui_MainWindow(object):
         self.palette.addStretch()
         self.add_palette_buttons(self.palette)
         self.palette.addStretch()
+        self.palette.setContentsMargins(0, 10, 0, 20)
 
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName("menubar")
@@ -123,9 +161,10 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.mainLayout = QVBoxLayout()
-        self.mainLayout.setContentsMargins(0, 0, 0, 25)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.mainLayout.setSpacing(10)
 
+        self.menuWidget.setMinimumHeight(90)
         self.mainLayout.addWidget(self.menuWidget)
         
         self.mainLayout.addWidget(self.mainImage)
@@ -148,8 +187,8 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Graphic Editor [Lab03]"))
         self.pencilTool.setStatusTip(_translate("MainWindow", "\"Pencil\""))
         self.pencilTool.setText(_translate("MainWindow", "..."))
-        # self.sprayTool.setStatusTip(_translate("MainWindow", "\"Spray\""))
-        # self.sprayTool.setText(_translate("MainWindow", "..."))
+        self.sprayTool.setStatusTip(_translate("MainWindow", "\"Spray\""))
+        self.sprayTool.setText(_translate("MainWindow", "..."))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionCreate.setText(_translate("MainWindow", "Create"))
         self.actionCreate.setShortcut(_translate("MainWindow", "Ctrl+N"))
@@ -162,15 +201,25 @@ class Ui_MainWindow(object):
         dialog = InputDialog()
         if dialog.exec():
             pixmap = QPixmap(int(dialog.getInputs()[0]), int(dialog.getInputs()[1])).scaled(self.mainImage.width(), self.mainImage.height(), Qt.KeepAspectRatio)
+
+            self.widthButton.setValue(pixmap.width())
+            self.heightButton.setValue(pixmap.height())
+
+            self.mainImage.setMaxSize(self.mainImage.width(), self.mainImage.height())
             pixmap.fill(Qt.white)
-            self.mainImage.setPixmap(pixmap)
+            self.mainImage.setPixmap(pixmap, True)
             self.mainImage.adjustSize()
 
     def openImage(self):
         imagePath, _ = QFileDialog.getOpenFileName()
         if imagePath:
             pixmap = QPixmap(imagePath).scaled(self.mainImage.width(), self.mainImage.height(), Qt.KeepAspectRatio)
-            self.mainImage.setPixmap(pixmap)
+
+            self.widthButton.setValue(pixmap.width())
+            self.heightButton.setValue(pixmap.height())
+
+            self.mainImage.setMaxSize(self.mainImage.width(), self.mainImage.height())
+            self.mainImage.setPixmap(pixmap, True)
             self.mainImage.adjustSize()
 
     def saveImage(self):
@@ -179,10 +228,34 @@ class Ui_MainWindow(object):
             self.mainImage.pixmap().save(fileName)
 
     def add_palette_buttons(self, layout):
+        layout.addStretch(10)
+        customButton = QPushButton()
+        icon = QIcon()
+        icon.addPixmap(QPixmap(".\\Resourses/color_pick_icon.png"), QIcon.Normal, QIcon.Off)
+        customButton.setIcon(icon)
+        customButton.setIconSize(QSize(50, 50))
+        customButton.setStyleSheet("border: none;")
+        customButton.clicked.connect(lambda: self.pickColor())
+        layout.addWidget(customButton)
+        layout.addStretch(1)
         for c in COLORS:
             b = QPaletteButton(c)
-            b.pressed.connect(lambda c=c: self.mainImage.set_pen_color(c))
+            b.setMinimumSize(QSize(30, 30))
+            b.pressed.connect(lambda c=c: self.mainImage.setPenColor(c))
             layout.addWidget(b)
+        layout.addStretch(10)
+
+    def pickColor(self):
+        color = QColorDialog.getColor()
+        self.mainImage.setPenColor(color)
+        return color
+        
+    def switchKeepRatioPixmap(self):
+        self.customBox = not self.customBox
+        ic = self.chainedIcon if self.customBox else self.unchainedIcon
+        self.keepRatioButton.setIcon(ic)
+        self.mainImage.setRatio(self.customBox)
+
 
 
 if __name__ == "__main__":

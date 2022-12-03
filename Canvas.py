@@ -1,6 +1,6 @@
 
 from PyQt5.QtWidgets import QLabel, QPushButton
-from PyQt5.QtGui import QColor, QPainter, QPixmap
+from PyQt5.QtGui import QColor, QPainter, QPixmap 
 from PyQt5.QtCore import Qt, QSize
 
 import random
@@ -21,11 +21,55 @@ class Canvas(QLabel):
         self.pen_color = QColor('#000000')
         self.currentTool = "pen"
 
-    def set_pen_color(self, c):
-        self.pen_color = QColor(c)
+        self.backupImage = None
+        self.maxWidth, self.maxHeight = None, None
+        self.keepRatio = True
+
+    def setRatio(self, value):
+        self.keepRatio = value
+        print(value)
+
+    def setMaxSize(self, width, height):
+        self.maxWidth = width
+        self.maxHeight = height
+
+    def changePenSize(self, value):
+        if not self.pixmap():
+            return
+        self.penSize = value
+
+    def changeWidth(self, width):
+        if not self.pixmap():
+            return
+
+        if width > self.maxWidth:
+            width = self.maxWidth
+
+        if self.keepRatio:
+            self.setPixmap(self.backupImage.copy().scaledToWidth(width), False)
+        else:
+            self.setPixmap(self.backupImage.copy().scaled(width, self.pixmap().height()), False)
+
+    def changeHeight(self, height):
+        if not self.pixmap():
+            return
+
+        if height > self.maxHeight:
+            height = self.maxHeight
+
+        if self.keepRatio:
+            self.setPixmap(self.backupImage.copy().scaledToHeight(height), False)
+        else:
+            self.setPixmap(self.backupImage.copy().scaled(self.pixmap().width(), height), False)
+
+
+    def setPenColor(self, c):
+        if self.pixmap():
+            self.p.setColor(QColor(c))
 
     def mouseMoveEvent(self, e):
-        self.p.setColor(self.pen_color)
+        if not self.pixmap():
+            return
         self.painter.setPen(self.p)
 
         if self.currentTool == "pen":
@@ -53,20 +97,21 @@ class Canvas(QLabel):
         self.last_x = None
         self.last_y = None
 
-    def changePenSize(self, value):
-        self.penSize = value
-
     def pickPen(self):
         self.currentTool = "pen"
 
     def pickSpray(self):
         self.currentTool = "spray"
 
-    def setPixmap(self, a0: QPixmap):
+    def setPixmap(self, a0: QPixmap, backup: bool):
+        if backup == True:
+            self.backupImage = a0
+
         if self.pixmap():
             self.painter.end()
 
         super().setPixmap(a0)
+
         rect = self.contentsRect()
         self.pmRect = self.pixmap().rect()
         if rect != self.pmRect:
@@ -82,7 +127,6 @@ class Canvas(QLabel):
 
         self.painter = QPainter(self.pixmap())
         self.p = self.painter.pen()
-        self.p.setWidth(4)
         self.painter.translate(-self.pmRect.topLeft())
 
 COLORS = [
