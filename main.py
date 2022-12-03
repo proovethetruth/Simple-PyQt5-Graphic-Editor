@@ -1,4 +1,3 @@
-
 from Canvas import *
 from InputDialog import *
 
@@ -6,7 +5,7 @@ import sys
 
 from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QFrame, QToolButton, 
-QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout, QSizePolicy)
+QMenuBar, QMenu, QAction, QFileDialog, QHBoxLayout, QVBoxLayout, QSpinBox)
 from PyQt5.QtCore import Qt, QSize, QMetaObject, QCoreApplication
 
 class Ui_MainWindow(object):
@@ -24,6 +23,7 @@ class Ui_MainWindow(object):
         self.mainImage.setObjectName("mainImage")
 
         self.toolMenu = QFrame()
+        self.toolMenu.setStyleSheet("background-color: white")
         self.toolMenu.adjustSize()
         self.toolMenu.setFrameShape(QFrame.StyledPanel)
         self.toolMenu.setFrameShadow(QFrame.Raised)
@@ -46,6 +46,21 @@ class Ui_MainWindow(object):
         self.sprayTool.setIconSize(QSize(60, 60))
         self.sprayTool.setObjectName("sprayTool")
         self.sprayTool.clicked.connect(lambda: self.mainImage.pickSpray())
+
+        self.sizeLabel = QLabel("   Pen size: ", self.toolMenu)
+        self.sizeLabel.setGeometry(120, 0, 100, 60)
+        self.sizeLabel.setFont(QFont("Gill Sans MT", 14))
+        self.sizeLabel.setStyleSheet("background-color: white")
+
+        self.sliderLabel = QLabel(self.toolMenu)
+        self.sliderLabel.setGeometry(220, 20, 120, 60)
+        self.sliderLabel.setStyleSheet("background-color: white")
+
+        self.penSizeButton = QSpinBox(self.sliderLabel)
+        self.penSizeButton.setValue(4)
+        self.penSizeButton.setMinimum(1)
+        self.penSizeButton.setMaximum(50)
+        self.penSizeButton.valueChanged.connect(lambda: self.mainImage.changePenSize(self.penSizeButton.value()))
 
         self.palette = QHBoxLayout()
         self.palette.addStretch()
