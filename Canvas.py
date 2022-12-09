@@ -40,16 +40,16 @@ class Canvas(QLabel):
     def changeWidth(self, width):
         if not self.pixmap():
             return
-
+        self.pixmap().save("temp.png")
         self.painter.end()
 
         if width > self.maxWidth:
             width = self.maxWidth
 
         if self.keepRatio:
-            self.setPixmap(self.backupImage.copy().scaledToWidth(width), False)
+            self.setPixmap(QPixmap("temp.png").scaledToWidth(width), False)
         else:
-            self.setPixmap(self.backupImage.copy().scaled(width, self.pixmap().height()), False)
+            self.setPixmap(QPixmap("temp.png").scaled(width, self.pixmap().height()), False)
 
     def changeHeight(self, height):
         if not self.pixmap():
@@ -61,9 +61,9 @@ class Canvas(QLabel):
             height = self.maxHeight
         
         if self.keepRatio:
-            self.setPixmap(self.backupImage.copy().scaledToHeight(height), False)
+            self.setPixmap(QPixmap("temp.png").scaledToHeight(height), False)
         else:
-            self.setPixmap(self.backupImage.copy().scaled(self.pixmap().width(), height), False)
+            self.setPixmap(QPixmap("temp.png").scaled(self.pixmap().width(), height), False)
 
     def setPenColor(self, c):
         if self.pixmap():
