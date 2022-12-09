@@ -27,7 +27,6 @@ class Canvas(QLabel):
 
     def setRatio(self, value):
         self.keepRatio = value
-        print(value)
 
     def setMaxSize(self, width, height):
         self.maxWidth = width
@@ -42,6 +41,8 @@ class Canvas(QLabel):
         if not self.pixmap():
             return
 
+        self.painter.end()
+
         if width > self.maxWidth:
             width = self.maxWidth
 
@@ -54,14 +55,15 @@ class Canvas(QLabel):
         if not self.pixmap():
             return
 
+        self.painter.end()
+
         if height > self.maxHeight:
             height = self.maxHeight
-
+        
         if self.keepRatio:
             self.setPixmap(self.backupImage.copy().scaledToHeight(height), False)
         else:
             self.setPixmap(self.backupImage.copy().scaled(self.pixmap().width(), height), False)
-
 
     def setPenColor(self, c):
         if self.pixmap():
@@ -105,9 +107,6 @@ class Canvas(QLabel):
         self.currentTool = "spray"
 
     def setPixmap(self, a0: QPixmap, backup: bool):
-        # if self.pixmap():
-        #     self.painter.end()
-
         super().setPixmap(a0)
 
         rect = self.contentsRect()
@@ -123,10 +122,10 @@ class Canvas(QLabel):
             elif align &  Qt.AlignBottom:
                 self.pmRect.moveBottom(rect.bottom())
 
+        self.painter = QPainter(self.pixmap())
+        self.p = self.painter.pen()
         if backup == True:
             self.backupImage = a0
-            self.painter = QPainter(self.pixmap())
-            self.p = self.painter.pen()
         self.painter.translate(-self.pmRect.topLeft())
 
 COLORS = [
